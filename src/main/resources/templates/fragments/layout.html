@@ -1,0 +1,24 @@
+<!doctype html>
+<html th:fragment="layout(template)" lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Pet Clinic</title>
+</head>
+<body>
+<div>
+    <ul th:remove="all">
+        <li th:fragment="menuItem(link, text)">
+            <a th:href="@{${link}}" th:text="${text}"></a>
+        </li>
+    </ul>
+    <ul>
+        <li th:replace="~{::menuItem('/', 'Home')}"></li>
+        <li th:replace="~{::menuItem('/owners/find', 'Find Owners')}"></li>
+        <li th:replace="~{::menuItem('/vets', 'Veterinarians')}"></li>
+        <li th:replace="~{::menuItem('/oops', 'Oops')}"></li>
+    </ul>
+</div>
+<div>
+    <th:block th:insert="${template}"></th:block>
+</div>
+</body>
+</html>
