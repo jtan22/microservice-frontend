@@ -1,21 +1,38 @@
-node {
+pipeline {
+    agent any
+    
+    environment {
+        DOCKERHUB_REPO = 'jtan22/microservice-frontend'
+        DOCKERHUB_CREDENTIAL = credentials('dockerhub')
+    }
+    
     def app
-    stage('Clone repository') {
-        checkout scm
-    }
-    stage('Build image') {
-        sh 'mvn clean package'
-        app = docker.build("jtan22/microservice-frontend")
-    }
-    stage('Test image') {
-        app.inside {
-            sh 'echo "Tests passed"'
+    
+    stages {
+        stage('Checkout') {
+            checkout scm
         }
-    }
-    stage('Push image') {
-        docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
-            app.push("${env.BUILD_NUMBER}")
-            app.push("latest")
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    app = docker.build("${DOCKERHUB_REPO}:${env.BUILD_NUMBER}")
+                }
+            }
+        }
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', DOCKERHUB_CREDENTIAL) {
+                        app.push("${env.BUILD_NUMBER}")
+                        app.push("latest")
+                    }
+                }
+            }
         }
     }
 }
