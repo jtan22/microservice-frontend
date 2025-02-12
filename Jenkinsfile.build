@@ -4,6 +4,7 @@ node {
         checkout scm
     }
     stage('Build image') {
+        sh 'mvn clean package'
         app = docker.build("jtan22/microservice-frontend")
     }
     stage('Test image') {
