@@ -6,12 +6,7 @@ pipeline {
         DOCKERHUB_CREDENTIAL = credentials('dockerhub')
     }
     
-    def app
-    
     stages {
-        stage('Checkout') {
-            checkout scm
-        }
         stage('Build') {
             steps {
                 sh 'mvn clean package'
@@ -20,7 +15,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    app = docker.build("${DOCKERHUB_REPO}:${env.BUILD_NUMBER}")
+                    def app = docker.build("${DOCKERHUB_REPO}:${env.BUILD_NUMBER}")
                 }
             }
         }
