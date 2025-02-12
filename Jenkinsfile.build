@@ -3,7 +3,7 @@ pipeline {
     
     environment {
         DOCKERHUB_REPO = 'jtan22/microservice-frontend'
-        DOCKERHUB_CREDENTIAL = credentials('dockerhub')
+        DOCKERHUB_CREDENTIAL = 'dockerhub'
     }
     
     stages {
@@ -22,7 +22,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', DOCKERHUB_CREDENTIAL) {
+                    docker.withRegistry('https://registry.hub.docker.com', ${DOCKERHUB_CREDENTIAL}) {
                         app.push("${env.BUILD_NUMBER}")
                         app.push("latest")
                     }
