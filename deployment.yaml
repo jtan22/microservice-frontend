@@ -28,9 +28,9 @@ kind: Service
 metadata:
   name: microservice-frontend
 spec:
-  type: LoadBalancer
+  type: NodePort
   ports:
-    - port: 80
+    - port: 8080
       targetPort: 8080
   selector:
     app: microservice-frontend
