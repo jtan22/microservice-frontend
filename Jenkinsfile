@@ -5,6 +5,10 @@ pipeline {
         DOCKERHUB_REPO = 'jtan22/microservice-frontend'
         DOCKERHUB_CREDENTIAL = 'dockerhub'
     }
+
+    script {
+        def app
+    }
     
     stages {
         stage('Set Docker Context') {
@@ -20,7 +24,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    def app = docker.build("${DOCKERHUB_REPO}:${env.BUILD_NUMBER}")
+                    app = docker.build("${DOCKERHUB_REPO}:${env.BUILD_NUMBER}")
                 }
             }
         }
