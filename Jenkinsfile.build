@@ -7,11 +7,6 @@ pipeline {
     }
 
     stages {
-        stage('Set Docker Context') {
-            steps {
-                sh 'docker context use default'
-            }
-        }
         stage('Build') {
             steps {
                 sh 'mvn clean package'
