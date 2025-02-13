@@ -6,10 +6,6 @@ pipeline {
         DOCKERHUB_CREDENTIAL = 'dockerhub'
     }
 
-    script {
-        def app
-    }
-    
     stages {
         stage('Set Docker Context') {
             steps {
