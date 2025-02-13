@@ -31,6 +31,7 @@ pipeline {
         }
         stage('Deploy Image') {
             steps {
+                sh 'kubectl delete -f deployment.yaml'
                 sh 'kubectl apply -f deployment.yaml'
             }
         }
