@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: microservice-frontend
+  labels:
+    app: microservice-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: microservice-frontend
+  template:
+    metadata:
+      labels:
+        app: microservice-frontend
+    spec:
+      containers:
+        - name: microservice-frontend
+          image: jtan22/microservice-frontend:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: microservice-frontend
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: microservice-frontend

@@ -7,19 +7,19 @@ pipeline {
     }
 
     stages {
-        stage('Build') {
+        stage('Build Package') {
             steps {
                 sh 'mvn clean package'
             }
         }
-        stage('Build Docker Image') {
+        stage('Build Image') {
             steps {
                 script {
                     app = docker.build("${DOCKERHUB_REPO}:${env.BUILD_NUMBER}")
                 }
             }
         }
-        stage('Push Docker Image') {
+        stage('Push Image') {
             steps {
                 script {
                     docker.withRegistry('https://registry.hub.docker.com', DOCKERHUB_CREDENTIAL) {
@@ -27,6 +27,11 @@ pipeline {
                         app.push("latest")
                     }
                 }
+            }
+        }
+        stage('Deploy Image') {
+            steps {
+                sh 'kubectl apply -f deployment.yaml'
             }
         }
     }
