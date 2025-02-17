@@ -22,6 +22,10 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: "prod"
+            - name: DB_URL
+              value: jdbc:mysql://host.docker.internal/petclinic
+            - name: VET_SERVICE_URL
+              value: http://microservice-vet:8080/vets
 ---
 apiVersion: v1
 kind: Service
