@@ -24,6 +24,10 @@ spec:
               value: "prod"
             - name: DB_URL
               value: jdbc:mysql://host.docker.internal/petclinic
+            - name: OWNER_SERVICE_URL
+              value: http://microservice-owner:8080/owners
+            - name: PET_SERVICE_URL
+              value: http://microservice-pet:8080/pets
             - name: VET_SERVICE_URL
               value: http://microservice-vet:8080/vets
 ---
