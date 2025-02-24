@@ -17,4 +17,6 @@ public class Owner {
 
     private String telephone;
 
+    private String petNames;
+
 }
