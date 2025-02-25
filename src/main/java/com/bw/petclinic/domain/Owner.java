@@ -2,6 +2,8 @@ package com.bw.petclinic.domain;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class Owner {
 
@@ -18,5 +20,7 @@ public class Owner {
     private String telephone;
 
     private String petNames;
+
+    private List<Pet> pets;
 
 }

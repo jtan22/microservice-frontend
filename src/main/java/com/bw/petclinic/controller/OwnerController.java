@@ -4,6 +4,7 @@ import com.bw.petclinic.domain.Owner;
 import com.bw.petclinic.domain.Pet;
 import com.bw.petclinic.service.OwnerService;
 import com.bw.petclinic.service.PetService;
+import com.bw.petclinic.service.VisitService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -11,6 +12,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.stream.Collectors;
@@ -23,9 +25,12 @@ public class OwnerController {
 
     private final PetService petService;
 
-    public OwnerController(OwnerService ownerService, PetService petService) {
+    private final VisitService visitService;
+
+    public OwnerController(OwnerService ownerService, PetService petService, VisitService visitService) {
         this.ownerService = ownerService;
         this.petService = petService;
+        this.visitService = visitService;
     }
 
     @GetMapping("/owners/find")
@@ -53,6 +58,16 @@ public class OwnerController {
                         .collect(Collectors.joining(","))));
         model.addAttribute("owners", ownerPage);
         return "ownerList";
+    }
+
+    @GetMapping("/owners/{id}")
+    public String showOwner(@PathVariable("id") int id, Model model) {
+        log.info("GET showOwner id [{}]", id);
+        Owner owner = ownerService.findById(id);
+        owner.setPets(petService.findByOwnerId(id));
+        owner.getPets().forEach(pet -> pet.setVisits(visitService.findByPetId(pet.getId())));
+        model.addAttribute("owner", owner);
+        return "ownerDetails";
     }
 
 }

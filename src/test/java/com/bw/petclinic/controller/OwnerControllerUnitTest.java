@@ -2,8 +2,10 @@ package com.bw.petclinic.controller;
 
 import com.bw.petclinic.domain.Owner;
 import com.bw.petclinic.domain.Pet;
+import com.bw.petclinic.domain.Visit;
 import com.bw.petclinic.service.OwnerService;
 import com.bw.petclinic.service.PetService;
+import com.bw.petclinic.service.VisitService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -34,6 +36,9 @@ public class OwnerControllerUnitTest {
 
     @MockBean
     private PetService petService;
+
+    @MockBean
+    private VisitService visitService;
 
     @Test
     public void testFindOwner() throws Exception {
@@ -104,6 +109,29 @@ public class OwnerControllerUnitTest {
         assertNotNull(mav);
         Owner owner = (Owner) mav.getModel().get("owner");
         assertEquals("Dav", owner.getLastName());
+    }
+
+    @Test
+    public void testShowOwner() throws Exception {
+        Pet pet = new Pet();
+        pet.setId(7);
+        Owner owner = new Owner();
+        owner.setId(6);
+        when(ownerService.findById(6)).thenReturn(owner);
+        when(petService.findByOwnerId(6)).thenReturn(List.of(pet));
+        when(visitService.findByPetId(7)).thenReturn(List.of(new Visit(), new Visit()));
+        ModelAndView mav = mockMvc
+                .perform(get("/owners/6"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("ownerDetails"))
+                .andExpect(model().attributeExists("owner"))
+                .andReturn()
+                .getModelAndView();
+        assertNotNull(mav);
+        Owner loadedOwner = (Owner) mav.getModel().get("owner");
+        assertEquals(6, loadedOwner.getId());
+        assertEquals(1, loadedOwner.getPets().size());
+        assertEquals(2, loadedOwner.getPets().get(0).getVisits().size());
     }
 
 }
