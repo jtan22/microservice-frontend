@@ -3,6 +3,7 @@ package com.bw.petclinic.controller;
 import com.bw.petclinic.domain.Owner;
 import com.bw.petclinic.domain.Pet;
 import com.bw.petclinic.domain.Visit;
+import com.bw.petclinic.exception.PetClinicServiceException;
 import com.bw.petclinic.service.OwnerService;
 import com.bw.petclinic.service.PetService;
 import com.bw.petclinic.service.VisitService;
@@ -19,10 +20,11 @@ import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(OwnerController.class)
@@ -132,6 +134,75 @@ public class OwnerControllerUnitTest {
         assertEquals(6, loadedOwner.getId());
         assertEquals(1, loadedOwner.getPets().size());
         assertEquals(2, loadedOwner.getPets().get(0).getVisits().size());
+    }
+
+    @Test
+    public void testNewOwner() throws Exception {
+        mockMvc
+                .perform(get("/owners/new"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("ownerForm"))
+                .andExpect(model().attributeExists("owner"));
+    }
+
+    @Test
+    public void testAddOwner() throws Exception {
+        Owner owner = createOwner();
+        when(ownerService.add(owner)).thenReturn(owner);
+        ModelAndView mav = mockMvc
+                .perform(post("/owners/new")
+                        .param("firstName", "First")
+                        .param("lastName", "Last")
+                        .param("address", "Address")
+                        .param("city", "City")
+                        .param("telephone", "0123456789"))
+                .andExpect(status().is3xxRedirection())
+                .andReturn().getModelAndView();
+        assertNotNull(mav);
+        String viewName = mav.getViewName();
+        assertNotNull(viewName);
+        assertTrue(viewName.startsWith("redirect:/owners/"));
+    }
+
+    @Test
+    public void testAddOwnerInvalidCity() throws Exception {
+        mockMvc
+                .perform(post("/owners/new")
+                        .param("firstName", "First")
+                        .param("lastName", "Last")
+                        .param("address", "Address")
+                        .param("city", "")
+                        .param("telephone", "0123456789"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("ownerForm"))
+                .andExpect(model().attributeHasFieldErrors("owner", "city"));
+    }
+
+    @Test
+    public void testAddOwnerInvalidTelephone() throws Exception {
+        when(ownerService.add(any(Owner.class)))
+                .thenThrow(new PetClinicServiceException(
+                        "OwnerService.add failed [400 : \"Bad request [Owner telephone must be 10 digits]\"]"));
+        mockMvc
+                .perform(post("/owners/new")
+                        .param("firstName", "First")
+                        .param("lastName", "Last")
+                        .param("address", "Address")
+                        .param("city", "City")
+                        .param("telephone", "Telephone"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("error"))
+                .andExpect(model().attribute("error", "OwnerService.add failed [400 : \"Bad request [Owner telephone must be 10 digits]\"]"));
+    }
+
+    private Owner createOwner() {
+        Owner owner = new Owner();
+        owner.setFirstName("First");
+        owner.setLastName("Last");
+        owner.setAddress("Address");
+        owner.setCity("City");
+        owner.setTelephone("0123456789");
+        return owner;
     }
 
 }
