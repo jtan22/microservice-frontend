@@ -5,6 +5,7 @@ import com.bw.petclinic.domain.Pet;
 import com.bw.petclinic.service.OwnerService;
 import com.bw.petclinic.service.PetService;
 import com.bw.petclinic.service.VisitService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -13,6 +14,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.stream.Collectors;
@@ -68,6 +70,24 @@ public class OwnerController {
         owner.getPets().forEach(pet -> pet.setVisits(visitService.findByPetId(pet.getId())));
         model.addAttribute("owner", owner);
         return "ownerDetails";
+    }
+
+    @GetMapping("/owners/new")
+    public String newOwner(Model model) {
+        log.info("GET newOwner");
+        model.addAttribute("owner", new Owner());
+        return "ownerForm";
+    }
+
+    @PostMapping("/owners/new")
+    public String addOwner(@Valid Owner owner, BindingResult bindingResult) {
+        log.info("POST addOwner {}", owner);
+        if (bindingResult.hasErrors()) {
+            return "ownerForm";
+        } else {
+            Owner savedOwner = ownerService.add(owner);
+            return "redirect:/owners/" + savedOwner.getId();
+        }
     }
 
 }
