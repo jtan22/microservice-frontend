@@ -41,4 +41,14 @@ public class OwnerService {
                 .getBody();
     }
 
+    public Owner findById(int id) {
+        log.info("findById id [{}]", id);
+        return restTemplate
+                .exchange(ownerServiceUrl + "/" + id,
+                        HttpMethod.GET,
+                        null,
+                        Owner.class)
+                .getBody();
+    }
+
 }

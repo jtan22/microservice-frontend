@@ -77,4 +77,20 @@ public class OwnerControllerIntTest {
         assertEquals("Dav", owner.getLastName());
     }
 
+    @Test
+    public void testShowOwner() throws Exception {
+        ModelAndView mav = mockMvc
+                .perform(get("/owners/6"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("ownerDetails"))
+                .andExpect(model().attributeExists("owner"))
+                .andReturn()
+                .getModelAndView();
+        assertNotNull(mav);
+        Owner owner = (Owner) mav.getModel().get("owner");
+        assertEquals(6, owner.getId());
+        assertEquals(2, owner.getPets().size());
+        assertEquals(2, owner.getPets().get(0).getVisits().size());
+    }
+
 }

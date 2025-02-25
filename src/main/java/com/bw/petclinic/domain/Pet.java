@@ -3,6 +3,7 @@ package com.bw.petclinic.domain;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 public class Pet {
@@ -16,5 +17,7 @@ public class Pet {
     private Integer ownerId;
 
     private PetType petType;
+
+    private List<Visit> visits;
 
 }
