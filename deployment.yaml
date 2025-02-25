@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: microservice-frontend
-          image: jtan22/microservice-frontend:latest
+          image: jtan22/microservice-frontend:${PROJECT_VERSION}
           ports:
             - containerPort: 8080
           env:
