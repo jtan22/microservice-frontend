@@ -28,6 +28,8 @@ spec:
               value: http://microservice-owner:8080/owners
             - name: PET_SERVICE_URL
               value: http://microservice-pet:8080/pets
+            - name: VISIT_SERVICE_URL
+              value: http://microservice-visit:8080/visits
             - name: VET_SERVICE_URL
               value: http://microservice-vet:8080/vets
 ---
