@@ -72,6 +72,38 @@ public class PetControllerUnitTest {
                 .andExpect(view().name("redirect:/owners/1?petId=1"));
     }
 
+    @Test
+    public void testEditPet() throws Exception {
+        Owner owner = createOwner();
+        Pet pet = createPet();
+        List<PetType> petTypes = List.of(createPetType("Cat"), createPetType("Dog"), createPetType("Bird"));
+        when(petService.findById(1)).thenReturn(pet);
+        when(ownerService.findById(1)).thenReturn(owner);
+        when(petService.findAllPetTypes()).thenReturn(petTypes);
+        mockMvc
+                .perform(get("/pets/edit?ownerId=1&petId=1"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("petForm"))
+                .andExpect(model().attribute("owner", owner))
+                .andExpect(model().attribute("pet", pet))
+                .andExpect(model().attribute("types", petTypes));
+    }
+
+    @Test
+    public void testUpdatePet() throws Exception {
+        Owner owner = createOwner();
+        List<PetType> petTypes = List.of(createPetType("Cat"), createPetType("Dog"), createPetType("Bird"));
+        when(ownerService.findById(1)).thenReturn(owner);
+        when(petService.findAllPetTypes()).thenReturn(petTypes);
+        mockMvc
+                .perform(post("/pets/edit?ownerId=1&petId=1")
+                        .param("name", "Test")
+                        .param("birthDate", "2000-09-07")
+                        .param("petType", "Cat"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/owners/1"));
+    }
+
     private Pet createPet() {
         Pet pet = new Pet();
         pet.setId(1);

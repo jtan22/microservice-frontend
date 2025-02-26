@@ -62,4 +62,22 @@ public class PetService {
         }
     }
 
+    public Pet findById(int id) {
+        log.info("findById id [{}]", id);
+        try {
+            return restTemplate.getForObject(petServiceUrl + "/" + id, Pet.class);
+        } catch (HttpClientErrorException ex) {
+            throw new PetClinicServiceException("PetService.findById failed [" + ex.getMessage() + "]");
+        }
+    }
+
+    public void update(Pet pet) {
+        log.info("updatePet {}", pet);
+        try {
+            restTemplate.put(petServiceUrl + "/" + pet.getId(), pet);
+        } catch (HttpClientErrorException ex) {
+            throw new PetClinicServiceException("PetService.update failed [" + ex.getMessage() + "]");
+        }
+    }
+
 }

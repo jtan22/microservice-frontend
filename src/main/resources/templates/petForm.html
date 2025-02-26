@@ -11,7 +11,8 @@
     <input th:replace="~{fragments/selectField :: select('Type', 'petType', ${types})}" />
     <br/>
     <div>
-        <button type="submit">Add Pet</button>
+        <button type="submit" th:if="*{id}">Update Pet</button>
+        <button type="submit" th:unless="*{id}">Add Pet</button>
     </div>
 </form>
 </body>

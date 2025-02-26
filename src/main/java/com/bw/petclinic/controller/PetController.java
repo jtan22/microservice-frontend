@@ -49,4 +49,34 @@ public class PetController {
         return "redirect:/owners/" + ownerId + "?petId=" + savedPet.getId();
     }
 
+    @GetMapping("/pets/edit")
+    public String editPet(@RequestParam("ownerId") int ownerId,
+                          @RequestParam("petId") int petId,
+                          Model model) {
+        log.info("GET editPet ownerId [{}], petId [{}]", ownerId, petId);
+        model.addAttribute("owner", ownerService.findById(ownerId));
+        model.addAttribute("pet", petService.findById(petId));
+        model.addAttribute("types", petService.findAllPetTypes());
+        return "petForm";
+    }
+
+    @PostMapping("/pets/edit")
+    public String updatePet(@RequestParam("ownerId") int ownerId,
+                            @RequestParam("petId") int petId,
+                            @Valid Pet pet, BindingResult bindingResult,
+                            Model model) {
+        log.info("POST updatePet ownerId [{}], petId [{}], {}", ownerId, petId, pet);
+        if (bindingResult.hasErrors()) {
+            pet.setId(petId);
+            model.addAttribute("owner", ownerService.findById(ownerId));
+            model.addAttribute("types", petService.findAllPetTypes());
+            return "petForm";
+        } else {
+            pet.setOwnerId(ownerId);
+            pet.setId(petId);
+            petService.update(pet);
+            return "redirect:/owners/" + ownerId;
+        }
+    }
+
 }

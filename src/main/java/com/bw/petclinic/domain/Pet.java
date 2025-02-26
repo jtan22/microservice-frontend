@@ -3,6 +3,7 @@ package com.bw.petclinic.domain;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -16,6 +17,7 @@ public class Pet {
     private String name;
 
     @NotNull(message = "Pet birth date must not be null")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthDate;
 
     private Integer ownerId;

@@ -63,4 +63,33 @@ public class PetControllerIntTest {
         jdbcTemplate.update("delete from pets where id = " + petId);
     }
 
+    @Test
+    public void testEditPet() throws Exception {
+        ModelAndView mav = mockMvc
+                .perform(get("/pets/edit?ownerId=1&petId=1"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("petForm"))
+                .andReturn()
+                .getModelAndView();
+        assertNotNull(mav);
+        assertEquals(1, ((Owner) mav.getModel().get("owner")).getId());
+        assertEquals(1, ((Pet) mav.getModel().get("pet")).getId());
+        @SuppressWarnings("unchecked")
+        List<PetType> petTypes = (List<PetType>) mav.getModel().get("types");
+        assertEquals(6, petTypes.size());
+    }
+
+    @Test
+    public void testUpdatePet() throws Exception {
+        mockMvc
+                .perform(post("/pets/edit?ownerId=1&petId=1")
+                        .param("name", "Test")
+                        .param("birthDate", "2000-09-07")
+                        .param("petType", "Cat"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/owners/1"));
+        assertEquals("Test", jdbcTemplate.queryForObject("select name from pets where id = 1", String.class));
+        jdbcTemplate.update("update pets set name = 'Leo' where id = 1");
+    }
+
 }
