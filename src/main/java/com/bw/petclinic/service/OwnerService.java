@@ -62,4 +62,13 @@ public class OwnerService {
         }
     }
 
+    public void update(Owner owner) {
+        log.info("update {}", owner);
+        try {
+            restTemplate.put(ownerServiceUrl + "/" + owner.getId(), owner);
+        } catch (HttpClientErrorException ex) {
+            throw new PetClinicServiceException("OwnerService.update failed [" + ex.getMessage() + "]");
+        }
+    }
+
 }

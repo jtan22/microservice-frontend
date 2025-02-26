@@ -90,4 +90,25 @@ public class OwnerController {
         }
     }
 
+    @GetMapping("/owners/edit")
+    public String editOwner(@RequestParam("ownerId") int ownerId, Model model) {
+        log.info("GET editOwner ownerId [{}]", ownerId);
+        model.addAttribute("owner", ownerService.findById(ownerId));
+        return "ownerForm";
+    }
+
+    @PostMapping("/owners/edit")
+    public String updateOwner(@RequestParam("ownerId") int ownerId,
+                              @Valid Owner owner, BindingResult bindingResult, Model model) {
+        log.info("POST updateOwner ownerId [{}], {}", ownerId, owner);
+        if (bindingResult.hasErrors()) {
+            owner.setId(ownerId);
+            return "ownerForm";
+        } else {
+            owner.setId(ownerId);
+            ownerService.update(owner);
+            return "redirect:/owners/" + owner.getId();
+        }
+    }
+
 }
