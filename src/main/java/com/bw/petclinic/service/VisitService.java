@@ -40,4 +40,9 @@ public class VisitService {
                 .getBody();
     }
 
+    public Visit add(Visit visit) {
+        log.info("add {}", visit);
+        return restTemplate.postForObject(visitServiceUrl, visit, Visit.class);
+    }
+
 }
