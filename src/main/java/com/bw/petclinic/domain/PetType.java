@@ -9,4 +9,9 @@ public class PetType {
 
     private String name;
 
+    @Override
+    public String toString() {
+        return name;
+    }
+
 }
