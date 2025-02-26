@@ -1,0 +1,18 @@
+<!doctype html>
+<html th:replace="~{fragments/layout :: layout(~{::body})}" xmlns:th="http://www.w3.org/1999/xhtml" lang="en">
+<body>
+<h2>Pet</h2>
+<form th:object="${pet}" method="post">
+    <label>Owner</label>
+    <div><span th:text="${owner.firstName + ' ' + owner.lastName}"></span></div>
+    <br/>
+    <input th:replace="~{fragments/inputField :: input('Name', 'name', 'text')}" />
+    <input th:replace="~{fragments/inputField :: input('Birth Date', 'birthDate', 'date')}" />
+    <input th:replace="~{fragments/selectField :: select('Type', 'petType', ${types})}" />
+    <br/>
+    <div>
+        <button type="submit">Add Pet</button>
+    </div>
+</form>
+</body>
+</html>

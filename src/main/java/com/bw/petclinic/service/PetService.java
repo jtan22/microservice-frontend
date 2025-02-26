@@ -1,12 +1,15 @@
 package com.bw.petclinic.service;
 
 import com.bw.petclinic.domain.Pet;
+import com.bw.petclinic.domain.PetType;
+import com.bw.petclinic.exception.PetClinicServiceException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -18,6 +21,9 @@ public class PetService {
 
     @Value("${service.url.pet}")
     private String petServiceUrl;
+
+    @Value("${service.url.pet-type}")
+    private String petTypeServiceUrl;
 
     private final RestTemplate restTemplate;
 
@@ -37,6 +43,23 @@ public class PetService {
                         null,
                         new ParameterizedTypeReference<List<Pet>>() {})
                 .getBody();
+    }
+
+    public List<PetType> findAllPetTypes() {
+        log.info("findAllPetTypes");
+        return restTemplate
+                .exchange(petTypeServiceUrl, HttpMethod.GET, null,
+                        new ParameterizedTypeReference<List<PetType>>() {})
+                .getBody();
+    }
+
+    public Pet add(Pet pet) {
+        log.info("add {}", pet);
+        try {
+            return restTemplate.postForObject(petServiceUrl, pet, Pet.class);
+        } catch (HttpClientErrorException ex) {
+            throw new PetClinicServiceException("PetService.add failed [" + ex.getMessage() + "]");
+        }
     }
 
 }
