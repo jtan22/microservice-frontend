@@ -153,4 +153,41 @@ public class OwnerControllerIntTest {
                 .andExpect(model().attribute("error", "OwnerService.add failed [400 : \"Bad request [Owner telephone must be 10 digits]\"]"));
     }
 
+    @Test
+    public void testEditOwner() throws Exception {
+        Owner owner = createGeorge();
+        owner.setId(1);
+        mockMvc
+                .perform(get("/owners/edit?ownerId=1"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("ownerForm"))
+                .andExpect(model().attribute("owner", owner));
+    }
+
+    @Test
+    public void testUpdateOwner() throws Exception {
+        mockMvc
+                .perform(post("/owners/edit?ownerId=1")
+                        .param("id", "1")
+                        .param("firstName", "George")
+                        .param("lastName", "Franklin")
+                        .param("address", "110 W. Liberty St.")
+                        .param("city", "Randwick")
+                        .param("telephone", "6085551023"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(view().name("redirect:/owners/1"));
+        assertEquals("Randwick", jdbcTemplate.queryForObject("select city from owners where id = 1", String.class));
+        jdbcTemplate.update("update owners set city = 'Madison' where id = 1");
+    }
+
+    private Owner createGeorge() {
+        Owner owner = new Owner();
+        owner.setFirstName("George");
+        owner.setLastName("Franklin");
+        owner.setAddress("110 W. Liberty St.");
+        owner.setCity("Madison");
+        owner.setTelephone("6085551023");
+        return owner;
+    }
+
 }
