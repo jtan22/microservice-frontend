@@ -20,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -44,7 +46,7 @@ public class PetControllerUnitTest {
         when(petService.findAllPetTypes()).thenReturn(
                 List.of(createPetType("Cat"), createPetType("Dog"), createPetType("Bird")));
         ModelAndView mav = mockMvc
-                .perform(get("/pets/new?ownerId=1"))
+                .perform(get("/pets/new?ownerId=1").with(user("user")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("petForm"))
                 .andExpect(model().attribute("pet", new Pet()))
@@ -67,7 +69,9 @@ public class PetControllerUnitTest {
                 .perform(post("/pets/new?ownerId=1")
                         .param("name", "Test")
                         .param("birthDate", "2024-02-14")
-                        .param("petType", "Cat"))
+                        .param("petType", "Cat")
+                        .with(user("user").roles("ADMIN"))
+                        .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/owners/1?petId=1"));
     }
@@ -81,7 +85,8 @@ public class PetControllerUnitTest {
         when(ownerService.findById(1)).thenReturn(owner);
         when(petService.findAllPetTypes()).thenReturn(petTypes);
         mockMvc
-                .perform(get("/pets/edit?ownerId=1&petId=1"))
+                .perform(get("/pets/edit?ownerId=1&petId=1")
+                        .with(user("user")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("petForm"))
                 .andExpect(model().attribute("owner", owner))
@@ -99,7 +104,9 @@ public class PetControllerUnitTest {
                 .perform(post("/pets/edit?ownerId=1&petId=1")
                         .param("name", "Test")
                         .param("birthDate", "2000-09-07")
-                        .param("petType", "Cat"))
+                        .param("petType", "Cat")
+                        .with(user("user").roles("ADMIN"))
+                        .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/owners/1"));
     }

@@ -23,6 +23,8 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -45,7 +47,7 @@ public class OwnerControllerUnitTest {
     @Test
     public void testFindOwner() throws Exception {
         mockMvc
-                .perform(get("/owners/find"))
+                .perform(get("/owners/find").with(user("user")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("ownerFind"))
                 .andExpect(model().attribute("owner", new Owner()));
@@ -61,7 +63,7 @@ public class OwnerControllerUnitTest {
         when(ownerService.findAll(0, 5, null)).thenReturn(ownerPage);
         when(petService.findByOwnerId(1)).thenReturn(List.of(new Pet()));
         ModelAndView mav = mockMvc
-                .perform(get("/owners"))
+                .perform(get("/owners").with(user("user")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("ownerList"))
                 .andExpect(model().attributeExists("owners"))
@@ -84,7 +86,7 @@ public class OwnerControllerUnitTest {
         when(ownerService.findAll(0, 5, "Davis")).thenReturn(ownerPage);
         when(petService.findByOwnerId(1)).thenReturn(List.of(new Pet()));
         ModelAndView mav = mockMvc
-                .perform(get("/owners?lastName=Davis"))
+                .perform(get("/owners?lastName=Davis").with(user("user")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("ownerList"))
                 .andExpect(model().attributeExists("owners"))
@@ -103,7 +105,7 @@ public class OwnerControllerUnitTest {
         Page<Owner> ownerPage = new PageImpl<>(List.of(), pageable, 0);
         when(ownerService.findAll(0, 5, "Dav")).thenReturn(ownerPage);
         ModelAndView mav = mockMvc
-                .perform(get("/owners?lastName=Dav"))
+                .perform(get("/owners?lastName=Dav").with(user("user")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("ownerFind"))
                 .andExpect(model().attributeExists("owner"))
@@ -123,7 +125,7 @@ public class OwnerControllerUnitTest {
         when(petService.findByOwnerId(6)).thenReturn(List.of(pet));
         when(visitService.findByPetId(7)).thenReturn(List.of(new Visit(), new Visit()));
         ModelAndView mav = mockMvc
-                .perform(get("/owners/6"))
+                .perform(get("/owners/6").with(user("user")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("ownerDetails"))
                 .andExpect(model().attributeExists("owner"))
@@ -139,7 +141,7 @@ public class OwnerControllerUnitTest {
     @Test
     public void testNewOwner() throws Exception {
         mockMvc
-                .perform(get("/owners/new"))
+                .perform(get("/owners/new").with(user("user")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("ownerForm"))
                 .andExpect(model().attributeExists("owner"));
@@ -155,7 +157,9 @@ public class OwnerControllerUnitTest {
                         .param("lastName", "Last")
                         .param("address", "Address")
                         .param("city", "City")
-                        .param("telephone", "0123456789"))
+                        .param("telephone", "0123456789")
+                        .with(user("user").roles("ADMIN"))
+                        .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andReturn().getModelAndView();
         assertNotNull(mav);
@@ -172,7 +176,9 @@ public class OwnerControllerUnitTest {
                         .param("lastName", "Last")
                         .param("address", "Address")
                         .param("city", "")
-                        .param("telephone", "0123456789"))
+                        .param("telephone", "0123456789")
+                        .with(user("user").roles("ADMIN"))
+                        .with(csrf())) // Cross-Site Request Forgery
                 .andExpect(status().isOk())
                 .andExpect(view().name("ownerForm"))
                 .andExpect(model().attributeHasFieldErrors("owner", "city"));
@@ -189,7 +195,9 @@ public class OwnerControllerUnitTest {
                         .param("lastName", "Last")
                         .param("address", "Address")
                         .param("city", "City")
-                        .param("telephone", "Telephone"))
+                        .param("telephone", "Telephone")
+                        .with(user("user").roles("ADMIN"))  // User with ADMIN role
+                        .with(csrf()))  // Cross-Site Request Forgery
                 .andExpect(status().isOk())
                 .andExpect(view().name("error"))
                 .andExpect(model().attribute("error", "OwnerService.add failed [400 : \"Bad request [Owner telephone must be 10 digits]\"]"));
@@ -201,7 +209,7 @@ public class OwnerControllerUnitTest {
         owner.setId(1);
         when(ownerService.findById(1)).thenReturn(owner);
         mockMvc
-                .perform(get("/owners/edit?ownerId=1"))
+                .perform(get("/owners/edit?ownerId=1").with(user("user")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("ownerForm"))
                 .andExpect(model().attribute("owner", owner));
@@ -216,7 +224,9 @@ public class OwnerControllerUnitTest {
                         .param("lastName", "Franklin")
                         .param("address", "110 W. Liberty St.")
                         .param("city", "Randwick")
-                        .param("telephone", "6085551023"))
+                        .param("telephone", "6085551023")
+                        .with(user("user").roles("ADMIN"))  // User with ADMIN role
+                        .with(csrf()))  // Cross-Site Request Forgery
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/owners/1"));
     }

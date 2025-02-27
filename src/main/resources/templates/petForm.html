@@ -6,6 +6,7 @@
     <label>Owner</label>
     <div><span th:text="${owner.firstName + ' ' + owner.lastName}"></span></div>
     <br/>
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
     <input th:replace="~{fragments/inputField :: input('Name', 'name', 'text')}" />
     <input th:replace="~{fragments/inputField :: input('Birth Date', 'birthDate', 'date')}" />
     <input th:replace="~{fragments/selectField :: select('Type', 'petType', ${types})}" />

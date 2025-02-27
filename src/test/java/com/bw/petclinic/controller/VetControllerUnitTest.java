@@ -18,6 +18,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
@@ -37,7 +38,7 @@ public class VetControllerUnitTest {
         Page<Vet> serviceVetPage = new PageImpl<>(List.of(new Vet(), new Vet(), new Vet()), pageable, 6);
         when(vetService.findAll(0, 3)).thenReturn(serviceVetPage);
         ModelAndView mav = mockMvc
-                .perform(get("/vets"))
+                .perform(get("/vets").with(user("user")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("vetList"))
                 .andExpect(model().attributeExists("vets"))
@@ -57,7 +58,7 @@ public class VetControllerUnitTest {
         Page<Vet> serviceVetPage = new PageImpl<>(List.of(new Vet(), new Vet()), pageable, 6);
         when(vetService.findAll(1, 2)).thenReturn(serviceVetPage);
         ModelAndView mav = mockMvc
-                .perform(get("/vets?pageNumber=2&pageSize=2"))
+                .perform(get("/vets?pageNumber=2&pageSize=2").with(user("user")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("vetList"))
                 .andExpect(model().attributeExists("vets"))

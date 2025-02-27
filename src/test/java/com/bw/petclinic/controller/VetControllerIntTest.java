@@ -11,6 +11,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -24,7 +25,7 @@ public class VetControllerIntTest {
     @Test
     public void findAllDefault() throws Exception {
         ModelAndView mav = mockMvc
-                .perform(get("/vets"))
+                .perform(get("/vets").with(user("user")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("vetList"))
                 .andExpect(model().attributeExists("vets"))
@@ -41,7 +42,7 @@ public class VetControllerIntTest {
     @Test
     public void findAllCustom() throws Exception {
         ModelAndView mav = mockMvc
-                .perform(get("/vets?pageNumber=2&pageSize=2"))
+                .perform(get("/vets?pageNumber=2&pageSize=2").with(user("user")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("vetList"))
                 .andExpect(model().attributeExists("vets"))

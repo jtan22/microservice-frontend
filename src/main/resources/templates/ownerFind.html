@@ -1,13 +1,12 @@
 <!doctype html>
-<html th:replace="~{fragments/layout :: layout(~{::body})}" xmlns:th="http://www.w3.org/1999/xhtml" lang="en">
+<html th:replace="~{fragments/layout :: layout(~{::body})}" xmlns:th="http://www.w3.org/1999/xhtml" lang="en"
+      xmlns:sec="http://www.w3.org/1999/xhtml">
 <body>
 <h2>Find Owners</h2>
 <form th:action="@{/owners}" th:object="${owner}" method="get">
     <div>
-        <label>
-            Last Name
-            <input th:field="*{lastName}">
-        </label>
+        <label for="lastName">Last Name</label>
+        <input id="lastName" th:field="*{lastName}">
     </div>
     <div th:if="${#fields.hasErrors()}">
         <p th:each="error : ${#fields.allErrors()}" th:text="${error}" class="error"></p>
@@ -15,7 +14,7 @@
     <br>
     <div>
         <button type="submit">Find Owner</button>
-        <a th:href="@{/owners/new}">Add Owner</a>
+        <a sec:authorize="hasRole('ADMIN')" th:href="@{/owners/new}">Add Owner</a>
     </div>
 </form>
 </body>
