@@ -3,6 +3,7 @@ package com.bw.petclinic.controller;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -16,6 +17,7 @@ public class WelcomeControllerUnitTest {
     private MockMvc mockMvc;
 
     @Test
+    @WithMockUser
     public void testWelcome() throws Exception {
         mockMvc
                 .perform(get("/"))

@@ -1,5 +1,6 @@
 <!doctype html>
-<html th:fragment="layout(template)" lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html th:fragment="layout(template)" lang="en" xmlns:th="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <title>Pet Clinic</title>
     <link rel="icon" href="data:,">
@@ -12,6 +13,11 @@
     </style>
 </head>
 <body>
+<div sec:authorize="isAuthenticated()">
+    <b>User:</b> <span sec:authentication="name"></span>
+    <b>Authorities:</b> <span sec:authentication="authorities"></span>
+    <b>Principal Authorities</b> <span sec:authentication="principal.authorities"></span>
+</div>
 <div>
     <ul th:remove="all">
         <li th:fragment="menuItem(link, text)">
@@ -27,6 +33,12 @@
 </div>
 <div>
     <th:block th:insert="${template}"></th:block>
+</div>
+<br/>
+<div>
+    <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post">
+        <input type="submit" value="Logout" />
+    </form>
 </div>
 </body>
 </html>

@@ -11,6 +11,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.servlet.ModelAndView;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -28,7 +30,7 @@ public class OwnerControllerIntTest {
     @Test
     public void testFindOwner() throws Exception {
         mockMvc
-                .perform(get("/owners/find"))
+                .perform(get("/owners/find").with(user("user")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("ownerFind"))
                 .andExpect(model().attribute("owner", new Owner()));
@@ -37,7 +39,7 @@ public class OwnerControllerIntTest {
     @Test
     public void testListOwnerDefault() throws Exception {
         ModelAndView mav = mockMvc
-                .perform(get("/owners"))
+                .perform(get("/owners").with(user("user")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("ownerList"))
                 .andExpect(model().attributeExists("owners"))
@@ -54,7 +56,7 @@ public class OwnerControllerIntTest {
     @Test
     public void testListOwnerDavis() throws Exception {
         ModelAndView mav = mockMvc
-                .perform(get("/owners?lastName=Davis"))
+                .perform(get("/owners?lastName=Davis").with(user("user")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("ownerList"))
                 .andExpect(model().attributeExists("owners"))
@@ -71,7 +73,7 @@ public class OwnerControllerIntTest {
     @Test
     public void testListOwnerNotFound() throws Exception {
         ModelAndView mav = mockMvc
-                .perform(get("/owners?lastName=Dav"))
+                .perform(get("/owners?lastName=Dav").with(user("user")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("ownerFind"))
                 .andExpect(model().attributeExists("owner"))
@@ -84,7 +86,7 @@ public class OwnerControllerIntTest {
     @Test
     public void testShowOwner() throws Exception {
         ModelAndView mav = mockMvc
-                .perform(get("/owners/6"))
+                .perform(get("/owners/6").with(user("user")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("ownerDetails"))
                 .andExpect(model().attributeExists("owner"))
@@ -100,7 +102,8 @@ public class OwnerControllerIntTest {
     @Test
     public void testNewOwner() throws Exception {
         mockMvc
-                .perform(get("/owners/new"))
+                .perform(get("/owners/new")
+                        .with(user("user").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("ownerForm"))
                 .andExpect(model().attributeExists("owner"));
@@ -114,7 +117,9 @@ public class OwnerControllerIntTest {
                         .param("lastName", "Last")
                         .param("address", "Address")
                         .param("city", "City")
-                        .param("telephone", "0123456789"))
+                        .param("telephone", "0123456789")
+                        .with(user("user").roles("ADMIN"))
+                        .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andReturn().getModelAndView();
         assertNotNull(mav);
@@ -133,7 +138,9 @@ public class OwnerControllerIntTest {
                         .param("lastName", "Last")
                         .param("address", "Address")
                         .param("city", "")
-                        .param("telephone", "0123456789"))
+                        .param("telephone", "0123456789")
+                        .with(user("user").roles("ADMIN"))
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("ownerForm"))
                 .andExpect(model().attributeHasFieldErrors("owner", "city"));
@@ -147,7 +154,9 @@ public class OwnerControllerIntTest {
                         .param("lastName", "Last")
                         .param("address", "Address")
                         .param("city", "City")
-                        .param("telephone", "Telephone"))
+                        .param("telephone", "Telephone")
+                        .with(user("user").roles("ADMIN"))
+                        .with(csrf()))
                 .andExpect(status().isOk())
                 .andExpect(view().name("error"))
                 .andExpect(model().attribute("error", "OwnerService.add failed [400 : \"Bad request [Owner telephone must be 10 digits]\"]"));
@@ -158,7 +167,8 @@ public class OwnerControllerIntTest {
         Owner owner = createGeorge();
         owner.setId(1);
         mockMvc
-                .perform(get("/owners/edit?ownerId=1"))
+                .perform(get("/owners/edit?ownerId=1")
+                        .with(user("user").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("ownerForm"))
                 .andExpect(model().attribute("owner", owner));
@@ -173,7 +183,9 @@ public class OwnerControllerIntTest {
                         .param("lastName", "Franklin")
                         .param("address", "110 W. Liberty St.")
                         .param("city", "Randwick")
-                        .param("telephone", "6085551023"))
+                        .param("telephone", "6085551023")
+                        .with(user("user").roles("ADMIN"))
+                        .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/owners/1"));
         assertEquals("Randwick", jdbcTemplate.queryForObject("select city from owners where id = 1", String.class));

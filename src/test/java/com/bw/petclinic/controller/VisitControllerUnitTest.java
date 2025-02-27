@@ -17,6 +17,8 @@ import java.time.LocalDate;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -41,7 +43,7 @@ public class VisitControllerUnitTest {
         when(ownerService.findById(1)).thenReturn(createOwner());
         when(petService.findById(1)).thenReturn(createPet());
         mockMvc
-                .perform(get("/visits/new?ownerId=1&petId=1"))
+                .perform(get("/visits/new?ownerId=1&petId=1").with(user("user")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("visitForm"))
                 .andExpect(model().attributeExists("owner", "pet", "visit"));
@@ -55,7 +57,9 @@ public class VisitControllerUnitTest {
         mockMvc
                 .perform(post("/visits/new?ownerId=1&petId=1")
                         .param("visitDate", "2024-02-14")
-                        .param("description", "Test"))
+                        .param("description", "Test")
+                        .with(user("user").roles("ADMIN"))
+                        .with(csrf()))
                 .andExpect(status().is3xxRedirection());
     }
 

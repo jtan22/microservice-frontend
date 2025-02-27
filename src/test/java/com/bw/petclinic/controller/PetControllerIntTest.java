@@ -14,6 +14,8 @@ import org.springframework.web.servlet.ModelAndView;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -31,7 +33,8 @@ public class PetControllerIntTest {
     @Test
     public void testNewPet() throws Exception {
         ModelAndView mav = mockMvc
-                .perform(get("/pets/new?ownerId=1"))
+                .perform(get("/pets/new?ownerId=1")
+                        .with(user("user").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("petForm"))
                 .andExpect(model().attribute("pet", new Pet()))
@@ -51,7 +54,9 @@ public class PetControllerIntTest {
                 .perform(post("/pets/new?ownerId=1")
                         .param("name", "Test")
                         .param("birthDate", "2024-02-20")
-                        .param("petType", "Cat"))
+                        .param("petType", "Cat")
+                        .with(user("user").roles("ADMIN"))
+                        .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andReturn()
                 .getModelAndView();
@@ -66,7 +71,8 @@ public class PetControllerIntTest {
     @Test
     public void testEditPet() throws Exception {
         ModelAndView mav = mockMvc
-                .perform(get("/pets/edit?ownerId=1&petId=1"))
+                .perform(get("/pets/edit?ownerId=1&petId=1")
+                        .with(user("user").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("petForm"))
                 .andReturn()
@@ -85,7 +91,9 @@ public class PetControllerIntTest {
                 .perform(post("/pets/edit?ownerId=1&petId=1")
                         .param("name", "Test")
                         .param("birthDate", "2000-09-07")
-                        .param("petType", "Cat"))
+                        .param("petType", "Cat")
+                        .with(user("user").roles("ADMIN"))
+                        .with(csrf()))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(view().name("redirect:/owners/1"));
         assertEquals("Test", jdbcTemplate.queryForObject("select name from pets where id = 1", String.class));
